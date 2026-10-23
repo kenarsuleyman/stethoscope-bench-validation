@@ -1,0 +1,17 @@
+# raw recordings, generated stimuli and figures (raw data are on Zenodo)
+data/
+stimulus/
+figures/
+pcg_test/stimulus/
+pcg_test/sim/
+pcg_test/figures*/
+pcg_test/model/
+pcg_test/clips/normal/
+pcg_test/clips/anormal/
+phone_rec/
+
+# MATLAB / Python
+*.asv
+*.mat
+__pycache__/
+*.pyc

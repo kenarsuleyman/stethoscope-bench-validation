@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it as below."
+title: "Bench acoustic validation of a MEMS digital stethoscope: measurement and analysis code"
+type: software
+license: MIT
+repository-code: "https://github.com/kenarsuleyman/stethoscope-bench-validation"
+authors:
+  - family-names: Kenar
+    given-names: Süleyman
+    affiliation: "Bursa Uludağ University"
+    orcid: "https://orcid.org/0009-0000-1807-9966"
+  - family-names: Aydemir
+    given-names: Umut
+    affiliation: "Bursa Uludağ University"
+    orcid: "https://orcid.org/0000-0001-5396-4610"
+keywords:
+  - digital stethoscope
+  - MEMS microphone
+  - heart sound classification
+  - acoustic validation
+  - domain shift

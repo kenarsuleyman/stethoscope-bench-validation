@@ -1,0 +1,24 @@
+#include <Arduino.h>
+#line 1 "C:\\Users\\kenar\\AppData\\Local\\Temp\\.arduinoIDE-unsaved2026024-32916-upw2v9.ca3n\\sketch_jan24a\\sketch_jan24a.ino"
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+
+// Audio bağlantıları
+AudioInputI2S            i2sInput;
+AudioOutputUSB           usbOutput;
+AudioConnection          patchCord1(i2sInput, 0, usbOutput, 0);
+AudioConnection          patchCord2(i2sInput, 0, usbOutput, 1);
+
+#line 11 "C:\\Users\\kenar\\AppData\\Local\\Temp\\.arduinoIDE-unsaved2026024-32916-upw2v9.ca3n\\sketch_jan24a\\sketch_jan24a.ino"
+void setup();
+#line 15 "C:\\Users\\kenar\\AppData\\Local\\Temp\\.arduinoIDE-unsaved2026024-32916-upw2v9.ca3n\\sketch_jan24a\\sketch_jan24a.ino"
+void loop();
+#line 11 "C:\\Users\\kenar\\AppData\\Local\\Temp\\.arduinoIDE-unsaved2026024-32916-upw2v9.ca3n\\sketch_jan24a\\sketch_jan24a.ino"
+void setup() {
+  AudioMemory(60);
+}
+
+void loop() {
+  // Boş - Audio library otomatik çalışır
+}

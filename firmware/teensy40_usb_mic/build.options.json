@@ -1,0 +1,10 @@
+{
+  "additionalFiles": "",
+  "builtInLibrariesFolders": "C:\\Users\\kenar\\AppData\\Local\\Arduino15\\libraries",
+  "compiler.optimization_flags": "",
+  "customBuildProperties": "",
+  "fqbn": "teensy:avr:teensy40:usb=audio,speed=600,opt=o2std,keys=en-us",
+  "hardwareFolders": "c:\\Users\\kenar\\AppData\\Local\\Arduino15\\packages",
+  "otherLibrariesFolders": "c:\\Users\\kenar\\Documents\\Arduino\\libraries",
+  "sketchLocation": "C:\\Users\\kenar\\AppData\\Local\\Temp\\.arduinoIDE-unsaved2026024-32916-upw2v9.ca3n\\sketch_jan24a"
+}
