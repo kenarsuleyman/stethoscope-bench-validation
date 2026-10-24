@@ -24,7 +24,7 @@ tests whether the hardware preserves what the classifier needs:
 |---|---|
 | Training, evaluation and TFLite export of the classifier | [kenarsuleyman/digital-stethoscope](https://github.com/kenarsuleyman/digital-stethoscope) |
 | Android application (React Native) | [kenarsuleyman/digital-stethoscope-mobile](https://github.com/kenarsuleyman/digital-stethoscope-mobile) |
-| Raw recordings of all runs used in the paper, the 47 played segments, the TFLite model | Zenodo, DOI: *to be added* |
+| Raw recordings of all runs used in the paper, the 47 played segments, the TFLite model | Zenodo: [10.5281/zenodo.23613295](https://doi.org/10.5281/zenodo.23613295) |
 
 ## Requirements
 
