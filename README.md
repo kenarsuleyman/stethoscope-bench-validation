@@ -26,7 +26,7 @@ tests whether the hardware preserves what the classifier needs:
 |---|---|
 | Training, evaluation and TFLite export of the classifier | [kenarsuleyman/digital-stethoscope](https://github.com/kenarsuleyman/digital-stethoscope) |
 | Android application (React Native) | [kenarsuleyman/digital-stethoscope-mobile](https://github.com/kenarsuleyman/digital-stethoscope-mobile) |
-| Raw recordings of all runs used in the paper, the 47 played segments, the TFLite model | Zenodo: [10.5281/zenodo.23613295](https://doi.org/10.5281/zenodo.23613295) |
+| Raw recordings of all runs used in the paper, the 47 played segments, the TFLite models (selected, trained with augmentation, control) | Zenodo: [10.5281/zenodo.23613295](https://doi.org/10.5281/zenodo.23613295) (all versions; version 2.0: [10.5281/zenodo.23833980](https://doi.org/10.5281/zenodo.23833980)) |
 
 ## Requirements
 
@@ -63,7 +63,7 @@ tests whether the hardware preserves what the classifier needs:
 
 ## Reproducing the analysis
 
-Download the Zenodo archive and unpack it so that the run folders are in `data/`, the segments in `pcg_test/clips/`
+Download the Zenodo archive (version 2.0 or later) and unpack it so that the run folders are in `data/`, the segments in `pcg_test/clips/`
 and the model in `pcg_test/model/`. Then, for example:
 
 ```matlab
