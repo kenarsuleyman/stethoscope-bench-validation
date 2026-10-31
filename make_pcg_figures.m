@@ -23,7 +23,7 @@ T = S(1).res.T;
 T.label = true_labels(T.file, cfg);       % layout/T.label keep the old, inverted PhysioNet labels
 vars = {'bandSnrDb','rWave','rEnv','rWaveEq','rEnvEq'};
 for v = vars, T.(v{1}) = mean(cell2mat(arrayfun(@(s) s.res.T.(v{1}), S, 'UniformOutput', false)), 2); end
-resDir = fullfile(cfg.paths.pcg, 'results');  if ~exist(resDir, 'dir'), mkdir(resDir); end
+resDir = gui_ctx('outDir', fullfile(cfg.paths.pcg, 'results'));  if ~exist(resDir, 'dir'), mkdir(resDir); end
 G = groupsummary(T, {'source','label'}, 'median', vars);
 writetable(G, fullfile(resDir, 'pcg_signal_summary.csv'));
 writetable(T, fullfile(resDir, 'pcg_signal_per_clip.csv'));
@@ -44,13 +44,13 @@ gDb = min(-interp1(log(R.f), R.dB, log(min(max(fg, R.f(1)), R.f(end))), 'pchip')
 [Ps, fs4] = mean_spectra(layout, runDirs);
 
 P = [];
-pf = fullfile(resDir, 'pcg_per_clip.csv');
+pf = gui_ctx('perClipCsv', fullfile(cfg.paths.pcg, 'results', 'pcg_per_clip.csv'));
 if isfile(pf), P = readtable(pf, 'TextType', 'string'); end
 
 for lang = {'tr', 'en'}
     cfg.lang = lang{1};  tr = strcmp(cfg.lang, 'tr');
     L = @(a, b) pick(tr, a, b);
-    cfg.paths.figures = fullfile(cfg.paths.pcg, 'figures', cfg.lang);
+    cfg.paths.figures = fullfile(gui_ctx('outDir', fullfile(cfg.paths.pcg, 'figures')), cfg.lang);
 
     % ---------------- H1 ----------------
     fig = new_figure(cfg, 11);
@@ -59,18 +59,18 @@ for lang = {'tr', 'en'}
     m = f >= 20 & f <= 1000;
     h1 = semilogx(ax, f(m), Hdb(m), 'Color', [0 0.3 0.6], 'LineWidth', 1.2);
     h2 = semilogx(ax, R.f, R.dB, 'ko--', 'MarkerSize', 3, 'LineWidth', 0.9);
-    set(ax, 'XScale', 'log');  xlim(ax, [20 1000]);  ylim(ax, cfg.fig.respYlim);
+    set(ax, 'XScale', 'log', 'XTick', cfg.fig.fticks);  xlim(ax, [20 1000]);  ylim(ax, cfg.fig.respYlim);
     mark_band(ax, cfg, false);
     ylabel(ax, L("Bağıl genlik (dB)", "Relative level (dB)"));
-    legend(ax, [h1 h2], [L(sprintf("Kalp sesi kayıtlarından (n = %d klip × %d)", height(T), nR), ...
-        sprintf("From heart-sound clips (n = %d clips × %d)", height(T), nR)), ...
+    legend(ax, [h1 h2], [L(sprintf("Kalp sesi kayıtlarından (n = %d segment × %d)", height(T), nR), ...
+        sprintf("From heart-sound segments (n = %d segments × %d)", height(T), nR)), ...
         L("Saf ton ölçümünden", "From pure-tone measurement")], 'Location', 'southeast');
     title(ax, L("Hoparlör + MEMS stetoskop, 0 dB = 250 Hz", ...
         "Speaker + MEMS stethoscope, 0 dB = 250 Hz"));
     set(ax, 'XTickLabel', []);
     ax2 = nexttile(tl);  hold(ax2, 'on');
     semilogx(ax2, f(m), coh(m), 'Color', [0 0.3 0.6], 'LineWidth', 1.1);
-    set(ax2, 'XScale', 'log');  xlim(ax2, [20 1000]);  ylim(ax2, [0 1.05]);
+    set(ax2, 'XScale', 'log', 'XTick', cfg.fig.fticks);  xlim(ax2, [20 1000]);  ylim(ax2, [0 1.05]);
     mark_band(ax2, cfg, false);
     xlabel(ax2, L("Frekans (Hz)", "Frequency (Hz)"));  ylabel(ax2, L("Koherens", "Coherence"));
     linkaxes([ax ax2], 'x');
@@ -81,19 +81,27 @@ for lang = {'tr', 'en'}
     nCol = 2;
     fig = new_figure(cfg, 12);
     tl = tiledlayout(fig, 2, nCol, 'TileSpacing', 'compact', 'Padding', 'compact');
-    cols = {L("Oynatılan kayıt", "Played recording"), L("Stetoskop kaydı", "Stethoscope recording"), ...
+    cols = {L("Oynatılan segment", "Played segment"), L("Stetoskop kaydı", "Stethoscope recording"), ...
             L("Stetoskop + yanıt düzeltmesi", "Stethoscope + response correction")};
+    % all four panels on one dB scale: 0 dB = the largest bin of the four (each signal peak-normalized first)
+    Sp = cell(2, nCol);
     for e = 1:2
         k = ex(e);  name = layout.files(k);
         sig = {resample(double(layout.ref{k}), 4000, layout.fsNat(k)), ...
                read4(fullfile(runDirs{1}, 'pcg_clips', 'steth', name)), ...
                read4(fullfile(runDirs{1}, 'pcg_clips', 'steth_eq', name))};
         for c = 1:nCol
+            [Sx, F, Tm] = spectrogram(model_prep(sig{c}), hann(256), 192, 1024, 4000);
+            Sp{e, c} = 20*log10(abs(Sx) + eps);
+        end
+    end
+    top = max(cellfun(@(s) max(s(F >= 25 & F <= 900, :), [], 'all'), Sp), [], 'all');
+    for e = 1:2
+        k = ex(e);  name = layout.files(k);
+        for c = 1:nCol
             ax = nexttile(tl);
-            x = model_prep(sig{c});
-            [Sx, F, Tm] = spectrogram(x, hann(256), 192, 1024, 4000);
-            imagesc(ax, Tm, F, 20*log10(abs(Sx) + eps));  axis(ax, 'xy');  ylim(ax, [25 900]);
-            clim(ax, max(clim(ax)) + [-70 0]);  colormap(ax, parula);
+            imagesc(ax, Tm, F, Sp{e, c} - top);  axis(ax, 'xy');  ylim(ax, [25 900]);
+            clim(ax, [-70 0]);  colormap(ax, parula);
             ttl = cols{c};
             if ~isempty(P)
                 j = find(P.file == name, 1);
@@ -110,6 +118,8 @@ for lang = {'tr', 'en'}
             if e == 2, xlabel(ax, L("Zaman (s)", "Time (s)")); end
         end
     end
+    cb = colorbar(ax);  cb.Layout.Tile = 'east';
+    cb.Label.String = L("Bağıl seviye (dB)", "Relative level (dB)");  cb.Label.FontName = cfg.fig.font;
     save_figure(fig, 'H2_pcg_spektrogram_karsilastirma', cfg);
 
     % ---------------- H3: model probabilities, uncorrected ----------------
@@ -125,7 +135,7 @@ for lang = {'tr', 'en'}
     h1 = semilogx(ax, R.f, R.dB, 'ko--', 'MarkerSize', 3, 'LineWidth', 0.9);
     h2 = semilogx(ax, fg, gDb, '-', 'Color', [0.8 0.2 0.1], 'LineWidth', 1.4);
     yline(ax, 0, '-', 'Color', [0.6 0.6 0.6]);
-    set(ax, 'XScale', 'log');  xlim(ax, [20 1000]);  ylim(ax, [-35 35]);
+    set(ax, 'XScale', 'log', 'XTick', cfg.fig.fticks);  xlim(ax, [20 1000]);  ylim(ax, [-35 35]);
     mark_band(ax, cfg, false);
     ylabel(ax, L("Kazanç (dB)", "Gain (dB)"));  set(ax, 'XTickLabel', []);
     legend(ax, [h1 h2], [L("Hoparlör + MEMS stetoskop yanıtı (saf ton, 0 dB = 250 Hz)", "Speaker + MEMS stethoscope response (pure tones, 0 dB = 250 Hz)"), ...
@@ -139,11 +149,11 @@ for lang = {'tr', 'en'}
     for v = 1:3
         hs(v) = semilogx(ax2, fs4(m), Ps(m, v), ls{v}, 'Color', cl{v}, 'LineWidth', 1.2);
     end
-    set(ax2, 'XScale', 'log');  xlim(ax2, [20 1000]);
+    set(ax2, 'XScale', 'log', 'XTick', cfg.fig.fticks);  xlim(ax2, [20 1000]);
     mark_band(ax2, cfg, false);
     xlabel(ax2, L("Frekans (Hz)", "Frequency (Hz)"));
     ylabel(ax2, L("Ortalama bağıl güç (dB)", "Mean relative power (dB)"));
-    legend(ax2, hs, [L("Oynatılan kayıt", "Played recording"), L("Stetoskop kaydı", "Stethoscope recording"), ...
+    legend(ax2, hs, [L("Oynatılan segment", "Played segment"), L("Stetoskop kaydı", "Stethoscope recording"), ...
         L("Stetoskop kaydı + düzeltme", "Stethoscope recording + correction")], 'Location', 'southwest');
     title(ax2, L(sprintf("(b) %d kalp sesi segmentinin ortalama spektrumu (model bandı)", numel(layout.files)), ...
         sprintf("(b) Mean spectrum of %d heart-sound segments (model band)", numel(layout.files))));
@@ -174,18 +184,17 @@ y = St.agree_pct(j);  lo = St.ci_lo(j);  hi = St.ci_hi(j);
 fig = new_figure(cfg, 7);
 ax = axes(fig);  hold(ax, 'on');
 cl = repmat([0 0.3 0.6], numel(v), 1);  cl(2:3,:) = repmat([0.5 0.5 0.5], 2, 1);  cl(4:6,:) = repmat([0.8 0.2 0.1], 3, 1);
+% points with Wilson 95 % CI (bars starting at 50 % would exaggerate the differences; advisor's 2nd review)
 for i = 1:numel(v)
-    barh(ax, i, y(i), 0.6, 'FaceColor', cl(i,:), 'EdgeColor', 'none');
-end
-errorbar(ax, y, 1:numel(v), y - lo, hi - y, 'horizontal', 'k.', 'CapSize', 3, 'LineWidth', 0.8);
-for i = 1:numel(v)
-    text(ax, hi(i) + 0.8, i, L(strrep(sprintf('%%%.1f', y(i)), '.', ','), sprintf('%.1f %%', y(i))), ...
+    errorbar(ax, y(i), i, y(i) - lo(i), hi(i) - y(i), 'horizontal', 'o', 'Color', cl(i,:), ...
+        'MarkerFaceColor', cl(i,:), 'MarkerSize', 5, 'CapSize', 4, 'LineWidth', 1);
+    text(ax, hi(i) + 1, i, L(strrep(sprintf('%%%.1f', y(i)), '.', ','), sprintf('%.1f%%', y(i))), ...
         'VerticalAlignment', 'middle', 'FontName', cfg.fig.font, 'FontSize', cfg.fig.fontSize - 1);
 end
 set(ax, 'YTick', 1:numel(v), 'YTickLabel', names, 'YDir', 'reverse');
 xlim(ax, [50 105]);  ylim(ax, [0.4 numel(v) + 0.6]);  grid(ax, 'on');
 xlabel(ax, L("Karar tutarlılığı (%, 47 segment × 3 ölçüm, %95 GA)", ...
-    "Decision consistency (%, 47 segments × 3 runs, 95 % CI)"));
+    "Decision consistency (%, 47 segments × 3 runs, 95% CI)"));
 save_figure(fig, 'H6_pcg_karar_tutarliligi_varyantlar', cfg);
 end
 
@@ -207,10 +216,10 @@ end
 nRuns = numel(split(P.([var '_runs'])(1), ";"));
 same = 100 * sum(P.(['sameclass_' extractAfter(var, 'p_') '_runs'])) / (height(P) * nRuns);
 axis(ax, 'square');  xlim(ax, [0 1]);  ylim(ax, [0 1]);
-xlabel(ax, L("Oynatılan kayıt: anormal olasılığı", "Played recording: P(abnormal)"));
+xlabel(ax, L("Oynatılan segment: anormal olasılığı", "Played segment: P(abnormal)"));
 ylabel(ax, sprintf('%s: %s', yname, L("anormal olasılığı", "P(abnormal)")));
 title(ax, L(strrep(sprintf("Karar tutarlılığı: %%%.1f", same), ".", ","), ...
-    sprintf("Decision consistency: %.1f %%", same)), ...
+    sprintf("Decision consistency: %.1f%%", same)), ...
     'FontWeight', 'normal');
 legend(ax, hh, L(["Normal, PhysioNet" "Normal, PASCAL-B" "Anormal, PhysioNet" "Anormal, PASCAL-B"], ...
     ["Normal, PhysioNet" "Normal, PASCAL-B" "Abnormal, PhysioNet" "Abnormal, PASCAL-B"]), ...

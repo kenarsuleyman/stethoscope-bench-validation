@@ -2,8 +2,8 @@
 
 Measurement and analysis code for the paper
 
-> S. Kenar, U. Aydemir. *Bench Acoustic Validation of a Low-Cost MEMS-Based Digital Stethoscope for a Heart Sound
-> Classifier Trained on Public Datasets* (submitted).
+> S. Kenar, U. Aydemir. *Bench acoustic evaluation of a low-cost MEMS-based digital stethoscope for a heart sound
+> classifier trained on public datasets* (submitted to Physiological Measurement).
 
 The stethoscope is a commercial dual-head chestpiece, a shortened tube, a 3D-printed PLA coupler, an INMP441 MEMS
 microphone and a Teensy 4.0 that streams the microphone as a USB Audio Class 1.0 device (2 ch, 44.1 kHz, 16 bit).
@@ -11,12 +11,14 @@ A MobileNetV2 heart sound classifier, trained on public datasets, runs in an And
 tests whether the hardware preserves what the classifier needs:
 
 1. **Pure tones** (30 Hz to 6 kHz): frequency accuracy, level response, in-band SNR, THD, sample slips,
-   repeatability with and without re-seating the chestpiece, THD versus playback level, tube length.
+   repeatability with and without re-seating the chestpiece, THD versus playback level, tube length, and an
+   exponential sine sweep for the exact resonance frequencies.
 2. **Heart sound playback**: 47 segments of PhysioNet/CinC 2016 and PASCAL Dataset-B played through the same setup and
    re-recorded; transfer function, coherence, envelope and Mel-image correlation, and the model decisions on the played
    and recorded segments (decision consistency, forward simulation with the measured response, response correction).
 3. **Smartphone recording path**: the same playback recorded by the Android application (AudioRecord, UNPROCESSED,
-   16 kHz) and compared with the computer recording.
+   16 kHz) and compared with the computer recording: decisions, level (tones recorded before, during and after),
+   and the noise floor with the coupler inlet open and sealed.
 
 ## Related repositories and data
 
@@ -47,6 +49,11 @@ tests whether the hardware preserves what the classifier needs:
 | `analyze_pcg.m`, `make_pcg_figures.m` | heart-sound playback analysis and figures |
 | `tone_band_snr.m`, `analyze_slips.m`, `pcg_coherence_check.m`, `pcg_forward_sim.m` | in-band SNR, USB sample slips, coherence, forward simulation and partial correction |
 | `compare_r9_r10.m`, `compare_tube_length.m` | THD versus level and re-seating repeatability; 450 mm versus 300 mm tube |
+| `generate_sweep.m`, `analyze_sweep.m` | exponential sine sweep (Farina) stimulus and response by regularized deconvolution (`run_measurement(label,'pc','sweep')`) |
+| `pcg_coherence_lowband.m` | coherence below 50 Hz: measured versus noise-only and ideal linear system |
+| `compare_phone_level.m` | smartphone versus computer level from tone runs before, during and after; sweep peaks |
+| `record_silence.m`, `noise_floor_compare.m` | silence recordings (e.g. coupler inlet sealed) and noise floor comparison of computer and smartphone |
+| `stetoskop_gui.m` | optional graphical interface for all measurement and analysis scripts (tools in `private/gui_tools.m`; labels in Turkish) |
 | `self_test.m`, `pcg_self_test.m` | synthetic tests of the analysis code |
 | `private/` | shared helpers (chirp detection, tone metrics, response correction, figure style) |
 | `pcg_test/*.py` | segment selection, model inference on played / recorded / simulated segments, statistics (Wilson CI, McNemar) |
@@ -75,7 +82,9 @@ python pcg_test/pcg_stats.py
 ```
 
 New measurements: `list_audio_devices`, then `run_measurement('label')` for tones or
-`run_measurement('label','pc','pcg')` for heart sounds (do not touch the setup between runs).
+`run_measurement('label','pc','pcg')` for heart sounds (do not touch the setup between runs). The same scripts can be
+run from `stetoskop_gui`, which writes every run with its log and command to `cikti/<tool>/<timestamp>/`; called
+from the command line, the scripts behave as before.
 
 ## Notes
 

@@ -1,0 +1,5 @@
+f_Hz,tone_sealed_dBFS,tone_open_dBFS,attenuation_dB,note
+100,-99.0,-84.0,15.0,sealed tone 4.6 dB above local floor (lower bound)
+250,-97.8,-79.6,18.2,
+1000,-78.0,-59.8,18.2,
+# level_check(f,4) on 2026-10-31, tube detached from the coupler, chestpiece in the ear cup; headphone tone leaks into the closed box

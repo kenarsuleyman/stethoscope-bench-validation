@@ -9,8 +9,7 @@ function runDir = pcg_self_test()
 cfg = config();
 [y, layout] = generate_pcg_stimulus(cfg);
 fsP = cfg.stim.fs;
-d = dir(fullfile(cfg.paths.figures, 'birlesik_*'));
-Tt = readtable(fullfile(d(end).folder, d(end).name, 'tr', 'ozet_tablo.csv'));
+Tt = readtable(fullfile(tone_response_dir(), 'tr', 'ozet_tablo.csv'));
 
 % forward chain: zero-phase magnitude response, same interpolation as the equaliser
 n = numel(y);  nfft = 2^nextpow2(n);

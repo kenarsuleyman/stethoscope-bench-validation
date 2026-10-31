@@ -30,5 +30,7 @@ valid = find(f > 15);
 [~, iMax] = max(A(valid));
 fprintf('    tone %.1f dBFS, local floor %.1f dBFS -> narrowband SNR %.1f dB; strongest component %.1f Hz\n', ...
     20*log10(pk), 20*log10(median(nb)), 20*log10(pk/median(nb)), f(valid(iMax)));
-audiowrite(fullfile(tempdir, sprintf('level_check_%d.wav', freq)), x, cfg.rec.fsSteth);
+f = fullfile(gui_ctx('outDir', tempdir), sprintf('level_check_%d.wav', freq));
+audiowrite(f, x, cfg.rec.fsSteth);
+fprintf('    recording -> %s\n', f);
 end

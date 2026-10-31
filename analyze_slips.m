@@ -56,7 +56,7 @@ for r = 1:numel(runDirs)
         1e6*sumSamples/(tAnalysed*fs), 1e6*(st.clockRatio-1), 1e6/(st.onsetEnd - st.onsetStart));
     tot.t = tot.t + tAnalysed;  tot.n = tot.n + nEv;  tot.samples = tot.samples + sumSamples;
 end
-outDir = fullfile(here, 'results');  if ~isfolder(outDir), mkdir(outDir); end
+outDir = gui_ctx('outDir', fullfile(here, 'results'));  if ~isfolder(outDir), mkdir(outDir); end
 writetable(ev, fullfile(outDir, 'sample_slips.csv'));
 fprintf('\nAll runs: %d events in %.1f s of tone -> 1 slip per %.2f s, mean jump %+.2f samples (median |jump| %.2f), equivalent offset %+.1f ppm\n', ...
     tot.n, tot.t, tot.t/max(tot.n,1), tot.samples/max(tot.n,1), median(abs(ev.jump_samples)), 1e6*tot.samples/(tot.t*fs));

@@ -48,7 +48,7 @@ for k = 1:nC
 end
 Out = table(layout.files(:), pcg_source_names(layout.orig), rH, mean(rHn,2), mean(rRaw,2), mean(rLow,2), mean(rMid,2), ...
     'VariableNames', {'file','source','rEnv_simH','rEnv_simHn','rEnv_raw','rEnv_eqlow','rEnv_eqmid'});
-outDir = fullfile(here, 'pcg_test', 'results');  if ~isfolder(outDir), mkdir(outDir); end
+outDir = gui_ctx('outDir', fullfile(here, 'pcg_test', 'results'));  if ~isfolder(outDir), mkdir(outDir); end
 writetable(Out, fullfile(outDir, 'pcg_forward_sim.csv'));
 fprintf('S1/S2 envelope correlation with the played clip, median over 47 clips:\n');
 fprintf('  ideal linear system (sim_H)            %.3f\n', median(rH));
@@ -62,8 +62,7 @@ end
 % -------------------------------------------------------------------------------------------
 function R = chain_response()
 % pure-tone response (mean of the final runs), dB re 250 Hz -- as analyze_pcg
-d = dir(fullfile(fileparts(mfilename('fullpath')), 'figures', 'birlesik_*'));
-Tt = readtable(fullfile(d(end).folder, d(end).name, 'tr', 'ozet_tablo.csv'));
+Tt = readtable(fullfile(tone_response_dir(), 'tr', 'ozet_tablo.csv'));
 R.f = Tt.fNom_Hz;  R.dB = Tt.relLevel_dB;  R.maxBoostDb = 30;
 end
 

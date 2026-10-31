@@ -116,9 +116,9 @@ end
 
 function R = chain_response(cfg)
 % pure-tone chain response (mean of the final runs), dB re 250 Hz
-d = dir(fullfile(fileparts(mfilename('fullpath')), 'figures', 'birlesik_*'));
-Tt = readtable(fullfile(d(end).folder, d(end).name, 'tr', 'ozet_tablo.csv'));
-R.f = Tt.fNom_Hz;  R.dB = Tt.relLevel_dB;  R.source = fullfile(d(end).folder, d(end).name);
+d = tone_response_dir();
+Tt = readtable(fullfile(d, 'tr', 'ozet_tablo.csv'));
+R.f = Tt.fNom_Hz;  R.dB = Tt.relLevel_dB;  R.source = d;
 R.maxBoostDb = 30;
 end
 

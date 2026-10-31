@@ -18,8 +18,8 @@ end
 here = fileparts(mfilename('fullpath'));
 cfg = config();
 minSnr = 20;                                          % R9: tones below this SNR are noise, not tone (dB)
-outDir = fullfile(here, 'figures', ['R9_R10_' char(datetime('now', 'Format', 'yyyyMMdd_HHmmss'))]);
-resDir = fullfile(here, 'results');  if ~isfolder(resDir), mkdir(resDir); end
+outDir = gui_ctx('outDir', fullfile(here, 'figures', ['R9_R10_' char(datetime('now', 'Format', 'yyyyMMdd_HHmmss'))]));
+resDir = gui_ctx('outDir', fullfile(here, 'results'));  if ~isfolder(resDir), mkdir(resDir); end
 
 % ---------------- R10: re-seating ----------------
 if ~isempty(reseatRuns)
@@ -94,7 +94,7 @@ for lang = {'tr', 'en'}
         ax = nexttile(tl);  hold(ax, 'on');
         hB = errorbar(ax, f, mean(rel_b, 2), std(rel_b, 0, 2), 'o-', 'MarkerSize', 3, 'Color', [0.45 0.45 0.45]);
         hR = errorbar(ax, f, mean(rel_r, 2), std(rel_r, 0, 2), 's-', 'MarkerSize', 3, 'Color', [0.8 0.35 0]);
-        set(ax, 'XScale', 'log', 'XTickLabel', []);  xlim(ax, [27 6600]);  ylim(ax, cfg.fig.respYlim);  mark_band(ax, cfg, false);
+        set(ax, 'XScale', 'log', 'XTick', cfg.fig.fticks, 'XTickLabel', []);  xlim(ax, [27 6600]);  ylim(ax, cfg.fig.respYlim);  mark_band(ax, cfg, false);
         ylabel(ax, Lb_("Bağıl genlik (dB, 0 dB = 250 Hz)", "Relative level (dB, 0 dB = 250 Hz)"));
         legend(ax, [hB hR], [Lb_(sprintf("Dokunulmadan (n = %d)", numel(baseRuns)), sprintf("Untouched (n = %d)", numel(baseRuns))), ...
             Lb_(sprintf("Her ölçümde yeniden yerleştirilmiş (n = %d)", numel(reseatRuns)), sprintf("Re-seated before each run (n = %d)", numel(reseatRuns)))], ...
@@ -102,7 +102,7 @@ for lang = {'tr', 'en'}
         ax2 = nexttile(tl);  hold(ax2, 'on');
         semilogx(ax2, f, std(rel_b, 0, 2), 'o-', 'MarkerSize', 3, 'Color', [0.45 0.45 0.45]);
         semilogx(ax2, f, std(rel_r, 0, 2), 's-', 'MarkerSize', 3, 'Color', [0.8 0.35 0]);
-        set(ax2, 'XScale', 'log');  xlim(ax2, [27 6600]);  mark_band(ax2, cfg, false);
+        set(ax2, 'XScale', 'log', 'XTick', cfg.fig.fticks);  xlim(ax2, [27 6600]);  mark_band(ax2, cfg, false);
         ylabel(ax2, Lb_("Standart sapma (dB)", "Standard deviation (dB)"));  xlabel(ax2, Lb_("Frekans (Hz)", "Frequency (Hz)"));
         save_figure(fig, 'R10_yeniden_yerlestirme', cfg);
     end
@@ -114,12 +114,12 @@ for lang = {'tr', 'en'}
             semilogy(ax, f, thd(:, r), 'o-', 'MarkerSize', 3, 'Color', cm(r, :), 'DisplayName', ...
                 Lb_(strrep(sprintf('%g dBFS', lev(r)), '.', ','), sprintf('%g dBFS', lev(r))));
         end
-        set(ax, 'XScale', 'log', 'YScale', 'log', 'XTickLabel', []);  xlim(ax, [27 6600]);  mark_band(ax, cfg, false);
+        set(ax, 'XScale', 'log', 'YScale', 'log', 'XTick', cfg.fig.fticks, 'XTickLabel', []);  xlim(ax, [27 6600]);  mark_band(ax, cfg, false);
         ylabel(ax, 'THD (%)');  legend(ax, flipud(findobj(ax, 'Type', 'line')),'Location', 'southwest');   % lines only, not the band patch
         ax2 = nexttile(tl);  hold(ax2, 'on');
         for r = 1:nL, semilogx(ax2, f, dev(:, r), 'o-', 'MarkerSize', 3, 'Color', cm(r, :)); end
         yline(ax2, 0, '-', 'Color', [0.6 0.6 0.6]);
-        set(ax2, 'XScale', 'log');  xlim(ax2, [27 6600]);  mark_band(ax2, cfg, false);
+        set(ax2, 'XScale', 'log', 'XTick', cfg.fig.fticks);  xlim(ax2, [27 6600]);  mark_band(ax2, cfg, false);
         ylabel(ax2, Lb_("Doğrusallık sapması (dB)", "Linearity deviation (dB)"));  xlabel(ax2, Lb_("Frekans (Hz)", "Frequency (Hz)"));
         save_figure(fig, 'R9_thd_seviye', cfg);
     end

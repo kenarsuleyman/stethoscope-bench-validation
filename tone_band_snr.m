@@ -47,7 +47,7 @@ end
 f = T.fNom;
 Out = table(f, mean(level,2), std(level,0,2), mean(peakSnr,2), mean(snrBand,2), std(snrBand,0,2), ...
     'VariableNames', {'fNom_Hz','level_dBFS','level_std_dB','peakToFloor_dB','inBandSNR_dB','inBandSNR_std_dB'});
-outDir = fullfile(here, 'results');  if ~isfolder(outDir), mkdir(outDir); end
+outDir = gui_ctx('outDir', fullfile(here, 'results'));  if ~isfolder(outDir), mkdir(outDir); end
 writetable(Out, fullfile(outDir, 'tone_band_snr.csv'));
 
 inModel = f >= band(1) & f <= band(2);

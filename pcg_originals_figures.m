@@ -33,7 +33,7 @@ R = load_chain_response(cfg);
 
 for lang = {'tr', 'en'}
     cfg.lang = lang{1};  tr = strcmp(cfg.lang, 'tr');
-    cfg.paths.figures = fullfile(cfg.paths.pcg, 'figures', cfg.lang);
+    cfg.paths.figures = fullfile(gui_ctx('outDir', fullfile(cfg.paths.pcg, 'figures')), cfg.lang);
 
     % --- G1: spectrogram grid (sources x {normal, abnormal}) ---
     fig = new_figure(cfg, 3.2*numel(srcs));
@@ -87,10 +87,10 @@ end
 
 function R = load_chain_response(cfg)
 % latest combined tone-run table (mean relative level re 250 Hz)
-d = dir(fullfile(fileparts(mfilename('fullpath')), 'figures', 'birlesik_*'));
+d = tone_response_dir();
 R = [];
 if isempty(d), return; end
-T = readtable(fullfile(d(end).folder, d(end).name, 'tr', 'ozet_tablo.csv'));
+T = readtable(fullfile(d, 'tr', 'ozet_tablo.csv'));
 R.f = T.fNom_Hz;  R.dB = T.relLevel_dB;
 end
 

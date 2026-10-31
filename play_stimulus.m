@@ -25,6 +25,7 @@ fprintf('Speaker: %s\nStimulus: %s, %.1f s\n', nmSpk, stimType, layout.duration)
 fprintf('>>> Start the test recording on the phone now <<<\n');
 for k = countdownS:-1:1, fprintf('%d ', k); pause(1); end
 fprintf('\nplaying (%s) ... keep quiet\n', char(datetime('now', 'Format', 'HH:mm:ss')));
-playblocking(player);
+play(player);
+wait_with_progress(@() isplaying(player), layout.duration, 'playing');
 fprintf('done (%s): press "Durdur ve kaydet" on the phone\n', char(datetime('now', 'Format', 'HH:mm:ss')));
 end

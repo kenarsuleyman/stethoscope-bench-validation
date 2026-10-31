@@ -5,6 +5,7 @@ function runDir = run_measurement(label, mode, stimType, toneDbfs)
 %   STIMTYPE 'tones' (default): stepped pure tones (generate_test_signal), analysed by
 %                     analyze_measurement + make_figures.
 %   STIMTYPE 'pcg'  : heart-sound clips (generate_pcg_stimulus), analysed by analyze_pcg.
+%   STIMTYPE 'sweep': exponential sine sweeps (generate_sweep), analysed by analyze_sweep.
 %
 %   MODE 'pc' (default): MATLAB plays the stimulus on the configured speaker.
 %   MODE 'external'    : only records; start stimulus/stimulus.wav on another player
@@ -30,6 +31,7 @@ if nargin < 3, stimType = 'tones'; end
 if nargin < 4, toneDbfs = []; end
 external = strcmpi(mode, 'external');
 pcg = strcmpi(stimType, 'pcg');
+sweep = strcmpi(stimType, 'sweep');
 cfg = config();
 if ~isempty(toneDbfs)
     cfg.stim.amp = 10^(toneDbfs/20);
@@ -37,6 +39,8 @@ if ~isempty(toneDbfs)
 end
 if pcg
     [y, layout] = generate_pcg_stimulus(cfg);
+elseif sweep
+    [y, layout] = generate_sweep(cfg);
 else
     [y, layout] = generate_test_signal(cfg);
 end
@@ -68,10 +72,11 @@ if external
     fprintf('>>> START stimulus.wav ON THE PHONE NOW (within %.0f s) <<<\n', preRoll - 2);
     for k = round(preRoll):-1:1, fprintf('%d ', k); pause(1); end
     fprintf('\nplaying ... wait %.0f s\n', layout.duration + cfg.rec.tailMargin + slack);
-    pause(layout.duration + cfg.rec.tailMargin + slack);
+    wait_with_progress([], layout.duration + cfg.rec.tailMargin + slack, 'recording');
 else
     pause(preRoll);
-    playblocking(player);
+    play(player);                       % not playblocking: the GUI log and stop button stay responsive
+    wait_with_progress(@() isplaying(player), layout.duration, 'playing');
     pause(cfg.rec.tailMargin);
 end
 stop(recS);
@@ -103,6 +108,8 @@ if meta.peakDbfsSteth < -40, warning('Stethoscope signal very low: check taping 
 % analyse immediately and store Turkish + English figures inside the run folder
 if pcg
     analyze_pcg(runDir);
+elseif sweep
+    analyze_sweep(runDir);
 else
     analyze_measurement(runDir);
     make_figures(runDir);

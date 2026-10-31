@@ -60,7 +60,7 @@ if hasRef
     Dd = Rs - Rr;
 end
 mu = @(A) mean(A, 2);  sd = @(A) std(A, 0, 2);
-fticks = [20 30 50 100 200 300 500 1000 2000 5000];
+fticks = cfg.fig.fticks;                 % the same ticks in every figure (config.m)
 
 % ===== Fig. A: frequency response =====
 fig = new_figure(cfg, 12);
@@ -139,10 +139,11 @@ band_fill(ax, fNom, mu(Ss), sd(Ss), C.s);
 hP = plot(ax, fNom, mu(Ss), '-o', 'Color', C.s, 'MarkerFaceColor', C.s, 'MarkerSize', 3.5, 'DisplayName', lbl('p2f', cfg));
 hh = hP;
 % in-band SNR (tone power vs. noise integrated over 25-900 Hz), written by tone_band_snr.m
-bf = fullfile(fileparts(mfilename('fullpath')), 'results', 'tone_band_snr.csv');
+bf = gui_ctx('bandSnrCsv', fullfile(fileparts(mfilename('fullpath')), 'results', 'tone_band_snr.csv'));
 if isfile(bf)
     Tb = readtable(bf);
-    hB = plot(ax, Tb.fNom_Hz, Tb.inBandSNR_dB, '--s', 'Color', C.r, 'MarkerSize', 3.5, 'DisplayName', lbl('snrBand', cfg));
+    ib = Tb.fNom_Hz <= 1000;   % in-band SNR only for the 40 model-band tones (30-1000 Hz), as in Table 2
+    hB = plot(ax, Tb.fNom_Hz(ib), Tb.inBandSNR_dB(ib), '--s', 'Color', C.r, 'MarkerSize', 3.5, 'DisplayName', lbl('snrBand', cfg));
     hh = [hP hB];
 end
 set(ax, 'XScale', 'log', 'XTick', fticks);  xlim(ax, [fNom(1)*0.9 fNom(end)*1.1]);

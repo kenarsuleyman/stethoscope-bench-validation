@@ -24,10 +24,10 @@ fprintf('R4 tube %.0f mm: measured peaks %s Hz, quarter-wave %s Hz\n', 1000*Lsho
 T = table(f, mL, mS, mS - mL, 'VariableNames', {'fNom_Hz', sprintf('level_%dmm_dBFS', round(1000*Llong)), ...
     sprintf('level_%dmm_dBFS', round(1000*Lshort)), 'short_minus_long_dB'});
 b = f >= 30 & f < 100;  fprintf('R4 short minus long tube, 30-100 Hz: %.1f to %.1f dB\n', min(T.short_minus_long_dB(b)), max(T.short_minus_long_dB(b)));
-resDir = fullfile(here, 'results');  if ~isfolder(resDir), mkdir(resDir); end
+resDir = gui_ctx('outDir', fullfile(here, 'results'));  if ~isfolder(resDir), mkdir(resDir); end
 writetable(T, fullfile(resDir, 'r4_tube_length.csv'));
 
-outDir = fullfile(here, 'figures', ['R4_' char(datetime('now', 'Format', 'yyyyMMdd_HHmmss'))]);
+outDir = gui_ctx('outDir', fullfile(here, 'figures', ['R4_' char(datetime('now', 'Format', 'yyyyMMdd_HHmmss'))]));
 for lang = {'tr', 'en'}
     cfg.lang = lang{1};  tr = strcmp(cfg.lang, 'tr');  Lb_ = @(a, b) pick(tr, a, b);
     cfg.paths.figures = fullfile(outDir, cfg.lang);
@@ -35,7 +35,7 @@ for lang = {'tr', 'en'}
     cL = [0.45 0.45 0.45];  cS = [0.8 0.35 0];
     hL = plot(ax, f, mL, 'o-', 'MarkerSize', 3, 'Color', cL);
     hS = plot(ax, f, mS, 's-', 'MarkerSize', 3, 'Color', cS);
-    set(ax, 'XScale', 'log');  xlim(ax, [27 6600]);  ylim(ax, [-80 0]);
+    set(ax, 'XScale', 'log', 'XTick', cfg.fig.fticks);  xlim(ax, [27 6600]);  ylim(ax, [-80 0]);
     for p = predL, xline(ax, p, '--', 'Color', cL, 'LineWidth', 0.8); end
     for p = predS, xline(ax, p, '--', 'Color', cS, 'LineWidth', 0.8); end
     mark_band(ax, cfg, false);

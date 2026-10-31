@@ -29,6 +29,15 @@ cfg.stim.noiseDur    = 4.0;             % s in-run silence used as noise floor
 cfg.stim.chirpDur    = 0.5;             % s sync chirp at start and end
 cfg.stim.chirpF      = [300 3000];      % Hz, log sweep inside both devices' band
 
+% --- Exponential sine sweep (Farina ESS; advisor's 2nd review M4: continuous response, exact peak frequencies) ---
+cfg.sweep.f      = [20 8000];           % Hz, start and end frequency
+cfg.sweep.dur    = 8.0;                 % s per sweep
+cfg.sweep.n      = 3;                   % sweeps per run (complex average of the transfer functions)
+cfg.sweep.gap    = 2.0;                 % s silence after each sweep (decay of the response)
+cfg.sweep.fadeDur = 0.05;               % s raised-cosine fade at both ends of a sweep
+cfg.sweep.irLen  = 0.3;                 % s of the linear impulse response kept (harmonic products removed)
+cfg.sweep.smoothOct = 1/24;             % octave smoothing for plots and peak picking
+
 % --- Heart-sound (PCG) playback test ---
 cfg.pcg.dir       = fullfile(fileparts(mfilename('fullpath')), 'pcg_test', 'clips');  % made by pcg_test/select_clips.py (PhysioNet + PASCAL-B test split)
 cfg.pcg.hpf       = 20;                 % Hz, 4th-order Butterworth high-pass, zero-phase (removes DC/baseline the speaker cannot play)
@@ -71,6 +80,7 @@ cfg.fig.width     = 16;                 % cm (A4 single column)
 cfg.fig.height    = 9;                  % cm
 cfg.fig.font      = 'Times New Roman';
 cfg.fig.fontSize  = 10;
-cfg.fig.dpi       = 300;
+cfg.fig.dpi       = 600;                % PNG resolution (journal line art; advisor's 2nd review)
+cfg.fig.fticks    = [20 30 50 100 200 500 1000 2000 5000];   % the same frequency ticks in every figure
 cfg.fig.respYlim  = [-40 30];          % common dB axis of the response figures (A and H1; advisor's review)
 end
